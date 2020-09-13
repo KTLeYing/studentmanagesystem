@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.ClazzDao">
+
+    <!--属性名和列名相互映射-->
+    <resultMap id="ClazzInfo" type="com.mzl.studentmanagesystem.entity.Clazz">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="info" column="info"/>
+    </resultMap>
+
+    <!--添加班级-->
+    <insert id="addClazz">
+        insert into s_clazz(name, info)
+        values(#{name}, #{info})
+    </insert>
+
+    <!--修改班级-->
+    <update id="editClazz">
+        update s_clazz
+        set name = #{name}, info = #{info}
+        where id = #{id}
+    </update>
+
+    <!--删除班级（包含批量删除）-->
+    <delete id="deleteClazz">
+        delete from s_clazz
+        <where>
+            id in
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--分页查询-->
+    <select id="queryList" resultType="com.mzl.studentmanagesystem.entity.Clazz">
+        select *
+        from s_clazz
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat("%", #{name}, "%")
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer" parameterType="Map">
+        select count(*)
+        from s_clazz
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat("%", #{name}, "%")
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.CourseDao">
+
+    <!--一对一，列名和属性名保持一致-->
+    <resultMap id="CourseInfo" type="com.mzl.studentmanagesystem.entity.Course">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="courseDate" column="course_date"/>
+        <result property="selectedNum" column="selected_num"/>
+        <result property="maxNum" column="max_num"/>
+        <result property="info" column="info"/>
+    </resultMap>
+
+    <!--添加课程-->
+    <insert id="addCourse">
+        insert into s_course(name, teacher_id, course_date, selected_num, max_num, info)
+        values(#{name}, #{teacherId}, #{courseDate}, 0, #{maxNum}, #{info})
+    </insert>
+
+    <!--给课程的选课数量加1-->
+    <update id="addStudentNum" parameterType="int">
+        update s_course
+        set selected_num = (
+           case
+             when selected_num = max_num then max_num
+             when selected_num &lt; max_num then selected_num + 1
+           end
+        )
+        where id =#{courseId}
+    </update>
+
+    <!--课程的学生数量先减1-->
+    <update id="reduceStudentNum">
+        update s_course
+        set selected_num = selected_num - 1
+        where id = #{courseId}
+    </update>
+
+    <!--修改课程-->
+    <update id="editCourse">
+        update s_course
+        set name = #{name}, teacher_id = #{teacherId}, course_date = #{courseDate}, selected_num = #{selectedNum}, max_num = #{maxNum}, info = #{info}
+        where id = #{id}
+    </update>
+
+    <!--删除课程-->
+    <delete id="deleteCourse">
+        delete from s_course
+        <where>
+            id in
+            <foreach collection="list" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--分页查询-->
+    <select id="queryList" resultMap="CourseInfo">
+        select *
+        from s_course
+        <where>
+            <if test="name != null and name != ''">
+              and name like concat("%", #{name}, "%")
+            </if>
+            <if test="teacherId != null and teacherId != ''">
+               and teacher_id like concat("%", #{teacherId}, "%")
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_course
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat("%", #{name}, "%")
+            </if>
+            <if test="teacherId != null and teacherId != ''">
+                and teacher_id like concat("%", #{teacherId}, "%")
+            </if>
+        </where>
+    </select>
+
+    <!--查询课程是否已满-->
+    <select id="queryCourse" resultMap="CourseInfo" parameterType="int">
+        select *
+        from s_course
+        where id = #{courseId}
+    </select>
+
+    <!--查询所有的课程-->
+    <select id="getCourseById" parameterType="java.util.List" resultType="com.mzl.studentmanagesystem.entity.Course">
+        select *
+        from s_course
+        <where>
+            id in
+            <foreach collection="list" open="(" close=")" separator="," item="id">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <!--通过课程名字查询课程id-->
+    <select id="findByName" resultType="java.lang.Integer">
+        select id
+        from s_course
+        where name = #{name}
+    </select>
+
+    <!--用课程名和时间查询课程-->
+    <select id="qureyCourseByNameAndDate" resultMap="CourseInfo">
+        select *
+        from s_course
+        where name = #{name} and course_date = #{courseDate}
+    </select>
+
+    <!--用课程id查找教师id-->
+    <select id="findById" resultType="java.lang.Integer">
+        select teacher_id
+        from s_course
+        where id = #{id}
+    </select>
+
+    <!--判课程表是否存在关联删除的老师-->
+    <select id="isTeacherInCourse" resultType="java.lang.Integer">
+        select count(*)
+        from s_course
+        <where>
+            teacher_id in
+            <foreach collection="list" item="teaId" open="(" close=")" separator=",">
+                #{teaId}
+            </foreach>
+        </where>
+    </select>
+
+
+</mapper>

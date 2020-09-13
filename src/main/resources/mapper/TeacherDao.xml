@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.TeacherDao">
+
+    <!--一对一，列名和属性名保持一致-->
+    <resultMap id="TeacherInfo" type="com.mzl.studentmanagesystem.entity.Teacher">
+        <id property="id" column="id"/>
+        <result property="sn" column="sn"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="clazzId" column="clazz_id"/>
+        <result property="sex" column="sex"/>
+        <result property="mobile" column="mobile"/>
+        <result property="qq" column="qq"/>
+        <result property="photo" column="photo"/>
+    </resultMap>
+
+    <!--添加老师-->
+    <insert id="addTeacher">
+        insert into s_teacher(sn, username, password, clazz_id, sex, mobile, qq, photo)
+        values(#{sn}, #{username}, #{password}, #{clazzId}, #{sex}, #{mobile}, #{qq}, #{photo})
+    </insert>
+
+    <!--修改教师-->
+    <update id="editTeacher">
+        update s_teacher
+        <set>
+            <if test="sn != null and sn != ''">
+                sn = #{sn},
+            </if>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="clazzId != null and clazzId != ''">
+                clazz_id = #{clazzId},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="photo != null and photo != ''">
+                photo = #{photo},
+            </if>
+            <if test="mobile != null and mobile != ''">
+                mobile = #{mobile},
+            </if>
+            <if test="qq != null and qq != ''">
+                qq = #{qq}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--修改老师密码-->
+    <update id="editPswByTeacher">
+        update s_teacher
+        set password = #{password}
+        where id = #{id}
+    </update>
+
+    <!--删除教师-->
+    <delete id="deleteTeacher">
+        delete from s_teacher
+        <where>
+            id in
+            <foreach collection="list" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--获取图片-->
+    <select id="findById" resultType="com.mzl.studentmanagesystem.entity.Teacher">
+        select *
+        from s_teacher
+        where id = #{tid}
+    </select>
+
+    <!--老师登录，使用用户名和密码-->
+    <select id="findByTeacher" resultMap="TeacherInfo">
+        select *
+        from s_teacher
+        where username = #{username} and password = #{password}
+    </select>
+
+    <!--分页查询教师每页内容-->
+    <select id="queryList" resultMap="TeacherInfo">
+        select *
+        from s_teacher
+        <where>
+            <if test="clazzid != null and clazzid != ''">
+                and clazz_id = #{clazzid}
+            </if>
+            <if test="teacherid != null and teacherid != ''">
+                and id = #{teacherid}
+            </if>
+            <if test="username != null and username != ''">
+                and username like concat('%', #{username}, '%')
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_teacher
+        <where>
+            <if test="clazzid != null and clazzid != ''">
+                and clazz_id = #{clazzid}
+            </if>
+            <if test="teacherid != null and teacherid != ''">
+                and id = #{teacherid}
+            </if>
+            <if test="username != null and username != ''">
+                and username like concat('%', #{username}, '%')
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

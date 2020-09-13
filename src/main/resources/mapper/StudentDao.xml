@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.StudentDao">
+
+    <!--一对一，设置列名和属性名相互映射,返回结果集-->
+    <resultMap id="StudentInfo" type="com.mzl.studentmanagesystem.entity.Student">
+        <id column="id" property="id"/>
+        <result column="sn" property="sn"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="clazz_id" property="clazzId"/>
+        <result column="sex" property="sex"/>
+        <result column="mobile" property="mobile"/>
+        <result column="qq" property="qq"/>
+        <result column="photo" property="photo"/>
+    </resultMap>
+
+    <!--保存学生信息到数据库-->
+    <insert id="addStudent">
+        insert into s_student(sn, username, password, clazz_id, sex, mobile, qq, photo)
+        values(#{sn}, #{username}, #{password}, #{clazzId}, #{sex}, #{mobile}, #{qq}, #{photo})
+    </insert>
+
+    <!--修改学生信息-->
+    <update id="editStudent">
+        update s_student
+        <set>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="clazzId != null and clazzId != ''">
+                clazz_id = #{clazzId},
+            </if>
+            <if test="qq != null and qq != ''">
+                qq = #{qq},
+            </if>
+            <if test="photo != null and photo != ''">
+                photo = #{photo},
+            </if>
+            <if test="mobile != null and mobile != ''">
+                mobile = #{mobile},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--修改密码-->
+    <update id="editPswByStudent">
+        update s_student
+        set password = #{password}
+        where id = #{id}
+    </update>
+
+    <!--删除学生（包含批量删除）-->
+    <delete id="deleteStudent">
+        delete from s_student
+        <where>
+            id in
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--查询学生（登录）-->
+    <select id="findByStudent" resultType="com.mzl.studentmanagesystem.entity.Student" parameterType="com.mzl.studentmanagesystem.entity.Student">
+        select *
+        from s_student
+        where username = #{username} and password = #{password}
+    </select>
+
+    <!--分页查询-->
+    <select id="queryList" resultMap="StudentInfo" parameterType="object">
+        select *
+        from s_student
+        <where>
+            <if test="username != null and username != ''">
+                and username like concat("%", #{username}, "%")
+            </if>
+            <if test="clazzid != null and clazzid != ''">
+                and clazz_id like concat("%", #{clazzid}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and id = #{studentid}
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_student
+        <where>
+            <if test="username != null and username != ''">
+                and username like concat("%", #{username}, "%")
+            </if>
+            <if test="clazzid != null and clazzid != ''">
+                and clazz_id like concat("%", #{clazzid}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and id = #{studentid}
+            </if>
+        </where>
+    </select>
+
+    <!--获取图片地址（教师和学生均可用）-->
+    <select id="findById" resultType="com.mzl.studentmanagesystem.entity.Student">
+        select *
+        from s_student
+        where id = #{sid}
+    </select>
+
+    <!--通过同学名字找到id-->
+    <select id="findByName" resultType="java.lang.Integer">
+        select id
+        from s_student
+        where username = #{name}
+    </select>
+
+    <!--判断课程是否有关联的学生-->
+    <select id="findByClazzId" resultMap="StudentInfo">
+        select *
+        from s_student
+        where clazz_id = #{id}
+    </select>
+
+
+</mapper>

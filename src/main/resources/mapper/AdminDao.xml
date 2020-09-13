@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.AdminDao">
+
+    <!--修改密码-->
+    <update id="editPswByAdmin">
+        update s_admin
+        set password = #{password}
+        where id = #{id}
+    </update>
+
+    <!--管理员登录（用密码和用户名检查）-->
+    <select id="findByAdmin" resultType="com.mzl.studentmanagesystem.entity.Admin">
+        select *
+        from s_admin
+        where password = #{password} and username = #{username}
+    </select>
+
+
+
+</mapper>

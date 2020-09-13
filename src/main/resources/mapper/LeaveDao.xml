@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.LeaveDao">
+
+    <!--一对一关联，列名与属性名一致-->
+    <resultMap id="LeaveInfo" type="com.mzl.studentmanagesystem.entity.Leave">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="info" column="info"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <!--添加请假-->
+    <insert id="addLeave">
+        insert into s_leave(student_id, info)
+        values(#{studentId}, #{info})
+    </insert>
+
+    <!--修改请假-->
+    <update id="editLeave" parameterType="com.mzl.studentmanagesystem.entity.Leave">
+        update s_leave
+        set info = #{info}, student_id = #{studentId}
+        where id = #{id}
+    </update>
+
+    <!--检查审核学生请假-->
+    <update id="checkLeave">
+        update s_leave
+        set status = #{status}, remark = #{remark}
+        where id = #{id}
+    </update>
+
+    <!--删除请假-->
+    <delete id="deleteLeave">
+        delete from s_leave
+        where id = #{id}
+    </delete>
+
+    <!--分页查询列表-->
+    <select id="queryList" resultMap="LeaveInfo">
+        select *
+        from s_leave
+        <where>
+            <if test="studentId != null and studentId != ''">
+                and student_id like concat("%", #{studentId}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_leave
+        <where>
+            <if test="studentId != null and studentId != ''">
+                and student_id like concat("%", #{studentId}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.AttendanceDao">
+
+    <!--一对一，列名和属性名保持一致-->
+    <resultMap id="AttendanceInfo" type="com.mzl.studentmanagesystem.entity.Attendance">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="type" column="type"/>
+        <result property="date" column="date"/>
+    </resultMap>
+
+    <!--添加出勤签到-->
+    <insert id="addAttendance">
+        insert into s_attendance(course_id, student_id, type, date)
+        values(#{courseId}, #{studentId}, #{type}, #{date})
+    </insert>
+
+    <!--删除出勤-->
+    <delete id="deleteAttendance">
+        delete from s_attendance
+        where id = #{id}
+    </delete>
+
+    <!--分页查询列表-->
+    <select id="queryList" resultMap="AttendanceInfo">
+        select *
+        from s_attendance
+        <where>
+            <if test="courseid != null and courseid != ''">
+                and course_id like concat("%", #{courseid}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id like concat("%", #{studentid}, "%")
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="date != null and date != ''">
+                and date = #{date}
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and student_id = #{studentId}
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_attendance
+        <where>
+            <if test="courseid != null and courseid != ''">
+                and course_id like concat("%", #{courseid}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id like concat("%", #{studentid}, "%")
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="date != null and date != ''">
+                and date = #{date}
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and student_id = #{studentId}
+            </if>
+        </where>
+    </select>
+
+    <!--判断是否签到-->
+    <select id="isAttendance" resultMap="AttendanceInfo">
+        select *
+        from s_attendance
+        where student_id = #{studentId} and course_id = #{courseId} and type = #{type} and date = #{date}
+    </select>
+
+
+</mapper>

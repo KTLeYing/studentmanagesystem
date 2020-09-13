@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.SelectedCourseDao">
+
+    <!--一对一关联，列名和属性名相互映射-->
+    <resultMap id="SelectedCourseInfo" type="com.mzl.studentmanagesystem.entity.SelectedCourse">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="courseId" column="course_id"/>
+    </resultMap>
+
+    <!--添加选课-->
+    <insert id="addSelectedCourse">
+        insert into s_selected_course(student_id, course_id)
+        values(#{studentId}, #{courseId})
+    </insert>
+
+    <!--删除选课信息-->
+    <delete id="deleteSelectedCourse">
+        delete from s_selected_course
+        where id = #{id}
+    </delete>
+
+    <!--分页查询列表-->
+    <select id="queryList" resultMap="SelectedCourseInfo">
+        select *
+        from s_selected_course
+        <where>
+            <if test="studentId != null and studentId != ''">
+                and student_id like concat("%", #{studentId}, "%")
+            </if>
+            <if test="courseId != null and courseId != ''">
+                and course_id like concat("%", #{courseId}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_selected_course
+        <where>
+            <if test="studentId != null and studentId != ''">
+                and student_id like concat("%", #{studentId}, "%")
+            </if>
+            <if test="courseId != null and courseId != ''">
+                and course_id like concat("%", #{courseId}, "%")
+            </if>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+        </where>
+    </select>
+
+    <!--查询是否存在已选的课程-->
+    <select id="findBySelectedCourse" resultMap="SelectedCourseInfo">
+        select *
+        from s_selected_course
+        where student_id = #{studentId} and course_id = #{courseId}
+    </select>
+
+    <!--查询出课程的id-->
+    <select id="queryById" resultMap="SelectedCourseInfo">
+        select *
+        from s_selected_course
+        where id = #{id}
+    </select>
+
+    <!--通过学生id查询学生的所有选课-->
+    <select id="getAllBySid" resultMap="SelectedCourseInfo" parameterType="int">
+        select *
+        from s_selected_course
+        where student_id = #{sid}
+    </select>
+
+    <!--判断是否存在课程关联学生-->
+    <select id="isStudentId" resultMap="SelectedCourseInfo">
+        select *
+        from s_selected_course
+        where student_id = #{id}
+    </select>
+
+    <!--查询选课表是否关联到删除的课程-->
+    <select id="isCourseInSelectedCourse" resultMap="SelectedCourseInfo">
+        select *
+        from s_selected_course
+        where course_id = #{id}
+    </select>
+
+
+</mapper>

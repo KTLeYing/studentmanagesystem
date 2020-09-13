@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mzl.studentmanagesystem.dao.ScoreDao">
+
+    <!--一对一，列名和属性名一致-->
+    <resultMap id="ScoreInfo" type="com.mzl.studentmanagesystem.entity.Score">
+        <id property="id" column="id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="score" column="score"/>
+        <result property="remark" column="remark"/>
+        <result property="courseName" column="courseName"/>
+        <result property="studentName" column="studentName"/>
+    </resultMap>
+
+    <!--添加进去数据库-->
+    <insert id="addScore">
+        insert into s_score(student_id, course_id, score, remark)
+        values(#{studentId}, #{courseId}, #{score}, #{remark})
+    </insert>
+
+    <!--修改成绩-->
+    <update id="editScore">
+        update s_score
+        <set>
+            <if test="studentId != null and studentId != ''">
+                student_id = #{studentId},
+            </if>
+            <if test="courseId != null and courseId != ''">
+                course_id = #{courseId},
+            </if>
+            <if test="score != null and score != ''">
+                score = #{score},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除成绩-->
+    <delete id="deleteScore">
+        delete from s_score
+        where id = #{id}
+    </delete>
+
+    <!--查询学生成绩列表-->
+    <select id="queryList" resultMap="ScoreInfo">
+        select *
+        from s_score
+        <where>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+            <if test="courseid != null and courseid != ''">
+               and course_id = #{courseid}
+            </if>
+        </where>
+        limit #{startIndex}, #{pagesize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="queryCount" resultType="java.lang.Integer">
+        select count(*)
+        from s_score
+        <where>
+            <if test="studentid != null and studentid != ''">
+                and student_id = #{studentid}
+            </if>
+            <if test="courseid != null and courseid != ''">
+                and course_id = #{courseid}
+            </if>
+        </where>
+    </select>
+
+    <!--判断是否已存在数据库中-->
+    <select id="isScore" resultType="com.mzl.studentmanagesystem.entity.Score">
+        select *
+        from s_score
+        where course_id = #{courseId} and student_id = #{studentId}
+    </select>
+
+    <!--获取所有成绩列表-->
+    <select id="getAll" resultMap="ScoreInfo">
+        select sc.*, s.username as studentName, c.name as courseName
+        from s_score sc inner join s_course c inner join s_student s
+        on sc.student_id = s.id and sc.course_id = c.id
+        <where>
+            <if test="studentId != null and studentId != ''">
+                and student_id = #{studentId}
+            </if>
+        </where>
+    </select>
+
+    <!--查询某个学生的某门课程是否存在-->
+    <select id="findByStuIdAndCouId" resultMap="ScoreInfo">
+        select *
+        from s_score
+        where student_id = #{studentId} and course_id = #{courseId}
+    </select>
+
+    <!--求和函数和平均值的统计-->
+    <select id="getAvgStats" resultType="com.mzl.studentmanagesystem.entity.ScoreStats">
+        select avg(sc.score) as avg_score, min(sc.score) as min_score, max(sc.score) as max_score, c.name as courseName
+        from s_score sc, s_course c
+        where course_id = #{courseid} and sc.course_id = c.id
+    </select>
+
+    <!--查询某课程的所有成绩-->
+    <select id="getAllByCourseId" resultMap="ScoreInfo">
+        select sc.*, c.name as courseName
+        from s_score sc, s_course c
+        where course_id = #{courseId} and sc.course_id = c.id
+    </select>
+
+
+</mapper>
