@@ -8,7 +8,7 @@
 
 ## 采用技术 ： 
 - 前端：HTML + CSS + JavaScript + EasyUI + Jquery + Ajax
-- 后端： Spring Boot + MyBatis + Thymeleaf + POI
+- 后端：Spring Boot + MyBatis + Thymeleaf + POI
 
 ## 开发环境 ：
 - 工具：IDEA、Navicat、Git
